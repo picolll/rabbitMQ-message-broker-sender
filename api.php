@@ -9,10 +9,10 @@ function sendMessage($message = 'Hello World!', $queue)
     $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
     $channel    = $connection->channel();
 
-    $channel->queue_declare($queue, false, false, false, false);
+    $channel->exchange_declare('logs', 'fanout', false, false, false);
 
     $msg = new AMQPMessage($message);
-    $channel->basic_publish($msg, '', $queue);
+    $channel->basic_publish($msg, 'logs');
 
     echo "\n [x] Sent $message\n\n";
 

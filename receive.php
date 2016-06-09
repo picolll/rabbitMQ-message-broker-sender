@@ -11,7 +11,12 @@ function receiveMessage($queue)
     $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
     $channel    = $connection->channel();
 
-    $channel->queue_declare($queue, false, false, false, false);
+    $channel->exchange_declare('logs', 'fanout', false, false, false);
+
+
+    list($queue_name, ,) = $channel->queue_declare("", false, false, true, false);
+
+    $channel->queue_bind($queue_name, 'logs');
 
     echo ' [*] Waiting for messages. To exit press CTRL+C', "\n";
 
@@ -20,12 +25,11 @@ function receiveMessage($queue)
 
         $event    = json_decode($msg->body);
         $eventObj = new Event($event->id, $event->timestamp, new User($event->data->name), $event->event);
-//        $userRepo = new UserRepo();
         UserRepo::createUser($eventObj->getData());
         var_dump(UserRepo::getUsers());
     };
 
-    $channel->basic_consume($queue, '', false, true, false, false, $callback);
+    $channel->basic_consume($queue_name, '', false, true, false, false, $callback);
 
     while (count($channel->callbacks)) {
         $channel->wait();
