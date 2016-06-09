@@ -1,13 +1,18 @@
 {
-    "name": "picolll/rabbitmq-sender",
-    "description": "Message sender to rabbitMQ server",
-    "require": {
-        "php-amqplib/php-amqplib": "2.5.*"
-    },
-    "authors": [
-        {
-            "name": "Piotr Lipski",
-            "email": "piotr.lipski@bbc.co.uk"
-        }
-    ]
+  "name": "picolll/rabbitmq-sender",
+  "description": "Message sender to rabbitMQ server",
+  "require": {
+    "php-amqplib/php-amqplib": "2.5.*"
+  },
+  "autoload": {
+    "psr-0": {
+      "app": "app/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Piotr Lipski",
+      "email": "piotr.lipski@bbc.co.uk"
+    }
+  ]
 }

@@ -1,9 +1,13 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/app/Model/Event.php';
+require_once __DIR__ . '/app/Model/User.php';
+require_once __DIR__ . '/app/Repos/UserRepo.php';
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 
 function receiveMessage($queue)
 {
+
     $connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
     $channel    = $connection->channel();
 
@@ -13,6 +17,12 @@ function receiveMessage($queue)
 
     $callback = function ($msg) {
         echo " [x] Received ", $msg->body, "\n";
+
+        $event    = json_decode($msg->body);
+        $eventObj = new Event($event->id, $event->timestamp, new User($event->data->name), $event->event);
+//        $userRepo = new UserRepo();
+        UserRepo::createUser($eventObj->getData());
+        var_dump(UserRepo::getUsers());
     };
 
     $channel->basic_consume($queue, '', false, true, false, false, $callback);
@@ -22,7 +32,7 @@ function receiveMessage($queue)
     }
 }
 
-$queue = $argv[1];
+$queue = isset($argv[1]) ? $argv[1] : '';
 
 switch ($queue) {
     case 'register':
