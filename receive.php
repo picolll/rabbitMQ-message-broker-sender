@@ -13,7 +13,7 @@ function receiveMessage($queue)
 
     $channel->exchange_declare('logs', 'fanout', false, false, false);
 
-        list($queue_name, ,) = $channel->queue_declare("", false, false, true, false);
+    list($queue_name, ,) = $channel->queue_declare("", false, false, true, false);
 
     $channel->queue_bind($queue_name, 'logs');
 
@@ -26,6 +26,28 @@ function receiveMessage($queue)
         $eventObj = new Event($event->id, $event->timestamp, new User($event->data->name), $event->event);
         UserRepo::createUser($eventObj->getData());
         var_dump(UserRepo::getUsers());
+
+        $event  = (array)$eventObj;
+        $events = array($event);
+
+        if (is_file('array.json')) {
+            $fileArray = json_decode(file_get_contents('array.json'), true);
+            if ($fileArray) {
+                foreach ($fileArray as $fileEvent) {
+                    $events[] = $fileEvent;
+                }
+
+            }
+        }
+        var_dump($events);
+        $fn = "array.json";
+        $fh = fopen($fn, 'w+');
+        fwrite($fh, json_encode($events));
+        fclose($fh);
+
+
+//        $fileArray = json_decode(file_get_contents('array.json'), true);
+
     };
 
     $channel->basic_consume($queue_name, '', false, true, false, false, $callback);
@@ -45,4 +67,6 @@ switch ($queue) {
         $queue = 'register';
 
 }
+
 receiveMessage($queue);
+
