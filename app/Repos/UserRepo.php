@@ -20,5 +20,9 @@ class UserRepo
         self::$users = $users;
     }
 
+    public static function clearUsers(){
+        self::$users = array();
+    }
+
 
 }

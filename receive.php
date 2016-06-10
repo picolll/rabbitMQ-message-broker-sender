@@ -27,8 +27,10 @@ function receiveMessage($queue)
         UserRepo::createUser($eventObj->getData());
         var_dump(UserRepo::getUsers());
 
+        $eventObj->setData((array)($eventObj->getData())); // Why it is User
         $event  = (array)$eventObj;
         $events = array($event);
+        //        var_dump($events[0]);
 
         if (is_file('array.json')) {
             $fileArray = json_decode(file_get_contents('array.json'), true);
@@ -39,14 +41,13 @@ function receiveMessage($queue)
 
             }
         }
-        var_dump($events);
+//        var_dump($events);
         $fn = "array.json";
         $fh = fopen($fn, 'w+');
         fwrite($fh, json_encode($events));
         fclose($fh);
 
-
-//        $fileArray = json_decode(file_get_contents('array.json'), true);
+        //        $fileArray = json_decode(file_get_contents('array.json'), true);
 
     };
 
@@ -57,16 +58,35 @@ function receiveMessage($queue)
     }
 }
 
-$queue = isset($argv[1]) ? $argv[1] : '';
+function init()
+{
+    if (is_file('array.json')) {
+        $fileArray = json_decode(file_get_contents('array.json'),true);
+        if ($fileArray) {
+            foreach ($fileArray as $fileEvent) {
+                var_dump($fileEvent);die;
+                $eventObj = new Event($fileEvent['\0Event\0id'], $fileEvent['timestamp'], new User($fileEvent->data['name']), $fileEvent['event']);
+                UserRepo::createUser($eventObj->getData());
+                var_dump(UserRepo::getUsers());die;
+            }
+
+        }
+    }
+}
+
+//init();
+
+$queue = isset($argv[1]) ? $argv[1] : 'userCreation';
 
 switch ($queue) {
     case 'register':
     case 'userCreation' :
         break;
     default:
-        $queue = 'register';
+        $queue = 'userCreation';
 
 }
+
 
 receiveMessage($queue);
 
