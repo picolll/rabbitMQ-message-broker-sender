@@ -57,7 +57,7 @@ function sendListUsersMessage()
     sendMessage($message, $queue);
 }
 
-sleep(1);
+//sleep(1);
 sendRegisterMessage();
 //sleep(1);
 //sendListUsersMessage();
